@@ -1,0 +1,33 @@
+2026-09-18 18:14:07.503525 [INFO] Application started
+2026-09-18 18:14:07.503556 [DEBUG] User service initialized
+2026-09-18 18:14:07.503560 [WARN] Payment service is slow
+2026-09-18 18:14:07.503563 [ERROR] Payment failed
+2026-09-18 18:14:10.077830 [INFO] Application started
+2026-09-18 18:14:10.077866 [DEBUG] User service initialized
+2026-09-18 18:14:10.077871 [WARN] Payment service is slow
+2026-09-18 18:14:10.077874 [ERROR] Payment failed
+2026-09-18 18:15:53.430714 [INFO] Application started
+2026-09-18 18:15:53.430745 [DEBUG] User service initialized
+2026-09-18 18:15:53.430750 [WARN] Payment service is slow
+2026-09-18 18:15:53.430752 [ERROR] Payment failed
+2026-09-18 18:33:53.439415 [INFO] Application started
+2026-09-18 18:34:10.302363 [INFO] Application started
+2026-09-18 18:34:10.302396 [DEBUG] User service initialized
+2026-09-18 18:34:10.302400 [WARN] Payment service is slow
+2026-09-18 18:34:10.302403 [ERROR] Payment failed
+2026-09-18 18:35:33.298625 [INFO] Application started
+2026-09-18 18:35:33.298658 [DEBUG] User service initialized
+2026-09-18 18:35:33.298665 [WARN] Payment service is slow
+2026-09-18 18:35:33.298667 [ERROR] Payment failed
+2026-09-18 19:19:05.230364 [INFO] Application started
+2026-09-18 19:19:05.230436 [DEBUG] User service initialized
+2026-09-18 19:19:05.230456 [WARN] Payment service is slow
+2026-09-18 19:19:05.230466 [ERROR] Payment failed
+2026-09-18 19:19:23.660583 [INFO] Application started
+2026-09-18 19:19:23.660612 [DEBUG] User service initialized
+2026-09-18 19:19:23.660617 [WARN] Payment service is slow
+2026-09-18 19:19:23.660620 [ERROR] Payment failed
+2026-09-19 09:54:25.780472 [INFO] Application started
+2026-09-19 09:54:25.780519 [DEBUG] User service initialized
+2026-09-19 09:54:25.780528 [WARN] Payment service is slow
+2026-09-19 09:54:25.780533 [ERROR] Payment failed
