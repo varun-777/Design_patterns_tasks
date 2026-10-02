@@ -1,243 +1,440 @@
 ```markdown
-# Character Game - Prototype & Registry Pattern
+# VM Instance Management System
+## Prototype Design Pattern + Registry
 
 ## Problem Statement
 
-You are developing a simple character system for a game.
+You are building a system that manages Virtual Machine (VM) instances.
 
-The game contains different types of characters such as:
+Creating a VM from scratch every time can be repetitive because a VM contains several configuration details such as:
 
-- Warrior
-- Mage
-- Archer
+- Operating System
+- Runtime
+- Monitoring Agent
+- Hostname
+- IP Address
 
-Each character has common properties:
+For example, a company may already have a configured Ubuntu VM with Docker and Datadog installed.
 
-- Name
-- Health
-- Attack Power
-- Weapon
-- Armor
+If another VM with almost the same configuration is required, we should not create the entire VM configuration from scratch.
 
-Creating every character from scratch can be repetitive. Instead, the game should maintain a set of pre-configured character objects and create new characters by cloning them.
+Instead, we can create a copy of an existing VM and modify only the properties that are different.
 
-To achieve this, implement the **Prototype Design Pattern** along with a **Registry**.
+To implement this, use the **Prototype Design Pattern**.
+
+To manage multiple predefined VM prototypes, use a **Registry**.
 
 ---
 
-## Requirements
+# Requirements
 
-### 1. Character Prototype
+## 1. Prototype Interface
 
-Create a generic `Character<T>` interface with a `clone()` method.
+Create a generic `Prototype<T>` interface.
 
-The `clone()` method should return a copy of the current character.
+It should define a `clone()` method that returns a copy of the current object.
 
 Example:
 
 ```java
-public interface Character<T> {
+public interface Prototype<T> {
     T clone();
 }
 ```
 
 ---
 
-### 2. Character Types
+# 2. VMInstance
 
-Create the following character classes:
-
-- `Warrior`
-- `Mage`
-- `Archer`
-
-Each character should contain:
-
-```text
-name
-health
-attack_power
-weapon
-armor
-```
-
-Each character must:
-
-1. Implement the `Character<T>` interface.
-2. Have a constructor to initialize its properties.
-3. Have a copy constructor.
-4. Implement the `clone()` method.
-5. Provide getters and setters for its properties.
-
-Example:
+Create a `VMInstance` class that implements:
 
 ```java
-Warrior warrior = new Warrior(
-    "Ninja-125",
-    90,
-    85,
-    "Sword",
-    "Heavy"
-);
+Prototype<VMInstance>
 ```
 
----
-
-## 3. Character Registry
-
-Create a `CharacterRegistry` class that stores character prototypes.
-
-The registry should use a `Map` where:
+The VM should contain the following fields:
 
 ```text
-key → character prototype
+os
+runtime
+monitoringAgent
+hostname
+ipAddress
 ```
 
 For example:
 
 ```text
-"warrior" → Warrior prototype
-"mage"    → Mage prototype
-"archer"  → Archer prototype
+OS              : Ubuntu 22.4
+Runtime         : Docker 1.2
+Monitoring      : Datadog
+Hostname        : Adity.com
+IP Address      : 123.41.23.12
 ```
 
-The registry should provide methods to:
+The class should provide:
 
-```java
-addCharacter(String key, Character character)
-```
+- Parameterized constructor
+- Copy constructor
+- Getters
+- Setters
+- `clone()` method
 
-and
-
-```java
-getCharacter(String key)
-```
-
----
-
-## 4. Client
-
-Create a `Client` class.
-
-The client should:
-
-1. Create a `CharacterRegistry`.
-2. Create one prototype for each character type.
-3. Add the prototypes to the registry.
-4. Retrieve a prototype from the registry.
-5. Clone the prototype to create a new character.
-6. Verify that the cloned character contains the same data as the prototype.
-7. Verify that the clone is a different object.
+The `clone()` method should create a new `VMInstance` using the existing instance.
 
 Example:
 
 ```java
-CharacterRegistry registry = new CharacterRegistry();
-
-fillRegistry(registry);
-
-Warrior warriorPlayer =
-    (Warrior) registry
-        .getCharacter("warrior")
-        .clone();
-```
-
----
-
-## Expected Behavior
-
-If the registered Warrior prototype contains:
-
-```text
-Name: Ninja-125
-Health: 90
-Attack Power: 85
-Weapon: Sword
-Armor: Heavy
-```
-
-then cloning it should create another Warrior with the same values.
-
-However:
-
-```java
-warriorPlayer != warriorPrototype
-```
-
-should be:
-
-```text
-true
-```
-
-because the clone must be a **new object**.
-
----
-
-## Design Pattern Responsibilities
-
-### Prototype
-
-The Prototype Pattern is responsible for:
-
-> Creating a new object by copying an existing object.
-
-For example:
-
-```java
-Warrior clone() {
-    return new Warrior(this);
+@Override
+public VMInstance clone() {
+    return new VMInstance(this);
 }
 ```
 
-### Registry
+---
 
-The Registry is responsible for:
+# 3. GPU VM Instance
 
-> Storing and retrieving predefined prototypes using keys.
+Create a specialized VM called:
+
+```text
+GpuVMInstance
+```
+
+It should extend:
+
+```java
+VMInstance
+```
+
+In addition to the VM fields, it should contain:
+
+```text
+gpuType
+```
 
 For example:
 
 ```text
-"warrior" → Warrior prototype
-"mage"    → Mage prototype
-"archer"  → Archer prototype
+GPU Type : Nvidia
 ```
 
-### Overall Flow
+It should provide:
 
-```text
-                Character Registry
-                       |
-          ┌────────────┼────────────┐
-          ↓            ↓            ↓
-      "warrior"      "mage"      "archer"
-          ↓            ↓            ↓
-      Warrior        Mage        Archer
-     Prototype     Prototype    Prototype
-          |
-          | clone()
-          ↓
-     New Warrior
+- Parameterized constructor
+- Copy constructor
+- Getter for `gpuType`
+- `clone()` method
+
+The copy constructor should copy both the inherited VM properties and the GPU-specific property.
+
+Example:
+
+```java
+public GpuVMInstance(GpuVMInstance other) {
+    this(
+        other.getOs(),
+        other.getRuntime(),
+        other.getMonitoringAgent(),
+        other.getHostname(),
+        other.getIpAddress(),
+        other.getGpuType()
+    );
+}
 ```
 
 ---
 
-## Goal of the Assignment
+# 4. VM Instance Registry
 
-The goal is to understand how the **Prototype Design Pattern** and **Registry** work together.
+Create a:
+
+```text
+VMInstanceRegistry
+```
+
+The registry should maintain predefined VM prototypes using a `Map`.
+
+The structure should be:
+
+```text
+Key                  Prototype
+
+backend-server-v1 → VMInstance
+gpu-instance-v2   → GpuVMInstance
+```
+
+The registry should provide:
+
+```java
+addVmInstance(String key, VMInstance vmInstance)
+```
+
+to register a prototype.
+
+It should also provide:
+
+```java
+getVmInstance(String key)
+```
+
+to retrieve a registered prototype.
+
+The registry should use a `HashMap`.
+
+---
+
+# 5. Client
+
+Create a `Client` class that prepares the VM prototypes.
+
+Create a normal VM prototype:
+
+```text
+Key: backend-server-v1
+
+OS: Ubuntu 22.4
+Runtime: Docker 1.2
+Monitoring Agent: Datadog
+```
+
+Register it in the registry.
+
+Then create a GPU VM prototype:
+
+```text
+Key: gpu-instance-v2
+
+OS: Ubuntu 22.4
+Runtime: Docker 1.2
+Monitoring Agent: Datadog
+Hostname: Adity.com
+IP: 123.41.23.12
+GPU: Nvidia
+```
+
+Register it in the registry.
+
+---
+
+# 6. Creating a New VM
+
+The client should not create another VM from scratch when a similar VM is required.
+
+Instead:
+
+1. Retrieve a prototype from the registry.
+2. Clone the prototype.
+3. Modify the properties that need to be different.
+
+Example:
+
+```java
+VMInstance newInstance =
+    vmInstanceRegistry
+        .getVmInstance("backend-server-v1")
+        .clone();
+```
 
 The important idea is:
 
 ```text
 Registry
-   ↓
-Find prototype
-   ↓
+    ↓
+Find existing prototype
+    ↓
 Clone prototype
-   ↓
-Create new object
+    ↓
+Create new VM
+    ↓
+Modify required properties
 ```
 
-Do not create a new character from scratch every time a character is needed.
-Use the registered prototype and clone it.
+---
+
+# Example Scenario
+
+Suppose the company already has this VM:
+
+```text
+OS              : Ubuntu 22.4
+Runtime         : Docker 1.2
+Monitoring      : Datadog
+Hostname        : Adity.com
+IP Address      : 123.41.23.12
+```
+
+Now the company needs another VM with the same configuration but a different:
+
+```text
+Hostname
+IP Address
+```
+
+Instead of doing:
+
+```java
+new VMInstance(
+    "Ubuntu 22.4",
+    "Docker 1.2",
+    "Datadog",
+    "new-host.com",
+    "192.168.1.10"
+);
+```
+
+we can clone the existing VM:
+
+```java
+VMInstance newInstance =
+    vmInstanceRegistry
+        .getVmInstance("backend-server-v1")
+        .clone();
+```
+
+Then change only the required properties:
+
+```java
+newInstance.setHostname("new-host.com");
+newInstance.setIpAddress("192.168.1.10");
+```
+
+---
+
+# Why Prototype?
+
+Without Prototype, the client would have to know all the configuration details required to create every VM.
+
+For example:
+
+```text
+OS
+Runtime
+Monitoring Agent
+Hostname
+IP Address
+GPU Type
+...
+```
+
+With Prototype:
+
+```text
+Existing VM
+     ↓
+   clone()
+     ↓
+New VM
+```
+
+The existing configuration is reused.
+
+---
+
+# Why Registry?
+
+The Registry provides a central place to store predefined prototypes.
+
+For example:
+
+```text
+VMInstanceRegistry
+
+"backend-server-v1"
+        ↓
+   VM Prototype
+
+"gpu-instance-v2"
+        ↓
+ GPU VM Prototype
+```
+
+The client can retrieve a prototype using its key.
+
+---
+
+# Design Pattern Responsibilities
+
+## Prototype
+
+Responsible for:
+
+> Creating a new object by copying an existing object.
+
+Main method:
+
+```java
+clone()
+```
+
+---
+
+## Registry
+
+Responsible for:
+
+> Storing and retrieving predefined prototype objects.
+
+Main methods:
+
+```java
+addVmInstance()
+getVmInstance()
+```
+
+---
+
+## Client
+
+Responsible for:
+
+> Using the registry to retrieve prototypes and cloning them when a new VM is required.
+
+---
+
+# Important Design Goal
+
+The client should avoid creating similar VM objects from scratch.
+
+Instead of:
+
+```text
+Create VM
+Create VM
+Create VM
+Create VM
+```
+
+the system should work like:
+
+```text
+              VM Registry
+                   |
+       ┌───────────┴───────────┐
+       ↓                       ↓
+backend-server-v1        gpu-instance-v2
+       ↓                       ↓
+   VM Prototype          GPU VM Prototype
+       ↓
+     clone()
+       ↓
+   New VM Instance
+```
+
+---
+
+# Expected Outcome
+
+The final system should demonstrate:
+
+1. Prototype interface
+2. VM object cloning
+3. Copy constructors
+4. Inheritance using `GpuVMInstance`
+5. Registry using `HashMap`
+6. Registering predefined prototypes
+7. Retrieving prototypes by key
+8. Creating new VM instances using `clone()`
+9. Modifying cloned instances without modifying the original prototype
+
+
